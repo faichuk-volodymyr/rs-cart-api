@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { v4 } from 'uuid';
-
 import { Order } from '../models';
+import { runOrderTransaction } from 'src/utils/runOrderTransaction';
 
 @Injectable()
 export class OrderService {
@@ -11,17 +10,13 @@ export class OrderService {
     return this.orders[ orderId ];
   }
 
-  create(data: any) {
-    const id = v4(v4())
-    const order = {
-      ...data,
-      id,
-      status: 'inProgress',
+  async create(order: Order) {
+    await runOrderTransaction(order)
+
+    return {
+      success: true,
+      order,
     };
-
-    this.orders[ id ] = order;
-
-    return order;
   }
 
   update(orderId, data) {
